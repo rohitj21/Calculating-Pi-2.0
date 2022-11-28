@@ -50,7 +50,6 @@ public:
 };
 num rec(int i);
 bool signum(const num &b) ;
-num rec(num x) ;
 
 /* now we define class methods*/
 
@@ -495,11 +494,11 @@ num num::operator/(const num &b) const
 
 // it would be useful if we could implement the reciprocal in a better way
 // for calculating pi we only need the reciprocals of the integer
-num rec(int x)
+num int_rec(int x)
 {
     if (x < 0)
     {
-        return -rec(-x);
+        return -int_rec(-x);
     }
     else if (x == 1)
     {
@@ -587,9 +586,9 @@ num arctan(const num &x)
     for (int i = 1; term != zero; i += 2)
     {
         if (i & 2)
-            ans = ans - (rec(i)) * term;
+            ans = ans - (int_rec(i)) * term;
         else
-            ans = ans + (rec(i)) * term;
+            ans = ans + (int_rec(i)) * term;
         term = xx * term;
     }
     return ans;
