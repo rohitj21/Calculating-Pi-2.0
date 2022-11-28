@@ -1,6 +1,6 @@
 #define ll long long int
 #define mybase 100000000
-#define M 125
+#define M 1000
 #include <iostream>
 #include <math.h>
 class num
@@ -17,38 +17,40 @@ class num
 public:
     ll digits[2 * M];
 
-    // these are the useful constructors
+    //  useful constructors
 
     num();                 // a default constrctor to instantiate numbers (to zero)
     num(const char arr[]); // first to  create numbers with a large number of digits , using  char input
     num(ll integer);       // another one to make numbes from int
 
-    // we need print statements too!
-    void print();
+    // print statements too!
+    void print()const;
 
     // usual operators and methods
-    bool signum(); // returns 1 if the number is positive, -1 if neg, 0 is zero
-    num abs();     // returns the absolute value of the number
+    bool signum() const; // returns 1 if the number is positive, 0 if neg
+    num abs()const;     // returns the absolute value of the number
     void negate(); // negates the number object
 
-    void operator=(num b);
+    void operator=(const num &b);
 
-    bool operator==(num b);
-    bool operator!=(num b);
+    bool operator==(const num &b)const;
+    bool operator!=(const num &b)const;
 
-    bool operator>(num b);
-    bool operator>=(num b);
-    bool operator<(num b);
-    bool operator<=(num b);
+    bool operator>(const num &b)const;
+    bool operator>=(const num &b)const;
+    bool operator<(const num &b)const;
+    bool operator<=(const num &b)const;
 
-    num operator+(num b);
-    num operator-(num b);
-    num operator-();
-    num operator*(num b);
-    num rec();
-    num operator/(num b);
+    num operator+(const num &b)const;
+    num operator-(const num &b)const;
+    num operator-()const;
+    num operator*(const num &b)const;
+    num rec() const;
+    num operator/(const num &b) const;
 };
 num rec(int i);
+bool signum(const num &b) ;
+num rec(num x) ;
 
 /* now we define class methods*/
 
@@ -59,7 +61,7 @@ num ::num()
         digits[i] = 0; // set all values to zero;
     }
 }
-bool num::signum()
+bool num::signum() const
 {
     return digits[0] < mybase / 2;
 }
@@ -128,7 +130,7 @@ void num ::negate()
         i--;
     }
 }
-num num::abs()
+num num::abs() const
 {
     num ans(*this);
     if (ans.signum())
@@ -205,7 +207,7 @@ void print_helper(ll number)
     for (int i = 0; i < 8; i++)
         std::cout << arr[i];
 }
-void num ::print()
+void num ::print() const
 {
     num toPrint(*this); // using the default copy constructor
     // deal with the negative case
@@ -250,7 +252,7 @@ void num ::print()
 
 /* now we define operators */
 
-void num::operator=(num b)
+void num::operator=(const num &b)
 {
     for (int i = 0; i < M; i++)
     {
@@ -258,7 +260,7 @@ void num::operator=(num b)
         digits[i + M] = b.digits[i + M];
     }
 }
-bool num::operator==(num b)
+bool num::operator==(const num &b)const
 {
     // while calculating pi we will often compare two very close number
     // so it makes more sense to start comparing from the end digits
@@ -271,7 +273,7 @@ bool num::operator==(num b)
     }
     return true;
 }
-bool num::operator!=(num b)
+bool num::operator!=(const num &b)const
 {
     for (int i = M - 1; i >= 0; i--)
     {
@@ -282,7 +284,7 @@ bool num::operator!=(num b)
     }
     return false;
 }
-bool num::operator>(num b)
+bool num::operator>(const num &b)const
 {
     // same logic follows is both of them have same sign
     if ((*this).signum() == b.signum())
@@ -299,7 +301,7 @@ bool num::operator>(num b)
 
     return (*this).signum();
 }
-bool num::operator>=(num b)
+bool num::operator>=(const num &b) const
 {
     // same logic follows is both of them have same sign
     if ((*this).signum() == b.signum())
@@ -316,12 +318,12 @@ bool num::operator>=(num b)
 
     return (*this).signum();
 }
-bool num::operator<=(num b)
+bool num::operator<=(const num &b)const
 {
     // could be implemented simply like this but i guess the it will take more time for copying and accessing data
     // return !((*this) > b);
 
-    if ((*this).signum() == b.signum())
+    if ((*this).signum() == b.signum()) 
     {
         for (int i = 0; i < 2 * M; i++)
         {
@@ -335,7 +337,7 @@ bool num::operator<=(num b)
 
     return b.signum();
 }
-bool num::operator<(num b)
+bool num::operator<(const num &b) const
 {
     if ((*this).signum() == b.signum())
     {
@@ -354,7 +356,7 @@ bool num::operator<(num b)
 
 /* Now defining arithematic operators */
 
-num num::operator-()
+num num::operator-() const
 {
     num ans;
     int i = 2 * M - 1;
@@ -370,7 +372,7 @@ num num::operator-()
     return ans;
 }
 
-num num::operator+(num b)
+num num::operator+(const num &b) const
 {
     num ans;
     ll carry = 0;
@@ -381,7 +383,7 @@ num num::operator+(num b)
     }
     return ans;
 }
-num num::operator-(num b)
+num num::operator-(const num &b) const
 {
     num ans;
     ll carry = 0;
@@ -393,14 +395,17 @@ num num::operator-(num b)
     return ans;
 }
 
-num num::operator*(num b)
+num num::operator*(const num &c) const
 {
     /* for multiplication we  multiply every pair and then group according to exponent */
     // multiplication is the most used operation so it must be as fast as possible
 
     //  to deal with negative numbers just convert all number to be positive
-    bool sign = (*this).signum() == b.signum(); // variable to store the sign of the final ans
+    num b(c);
     num a(*this);
+    bool sign = a.signum() == b.signum(); // variable to store the sign of the final ans
+    
+    
     if (!a.signum())
         a.negate();
     if (!b.signum())
@@ -443,7 +448,7 @@ num num::operator*(num b)
     return prod;
 }
 // for division we first need reciprocal
-num num::rec()
+num num::rec() const
 {
     // take care of negative numbers
     num a(*this);
@@ -483,7 +488,7 @@ num num::rec()
 }
 
 // now we can finally impliment the division
-num num::operator/(num b)
+num num::operator/(const num &b) const
 {
     return (*this) * (b.rec());
 }
@@ -518,7 +523,7 @@ num rec(int x)
 
 // square root function
 
-num sqrt(num x)
+num sqrt(const num &x)
 {
 
     /*
@@ -573,7 +578,7 @@ num sqrt(num x)
     return guess;
 }
 
-num arctan(num x)
+num arctan(const num &x)
 {
     num xx = x * x;
     num ans;
