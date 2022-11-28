@@ -199,7 +199,7 @@ num num::rec()
     num a(*this);
     if (!a.signum())
         a.negate();
-    num guess, guess1;
+    num guess;
     // now the real chalenge is to make a smart guess for the reciprocal
     // the exponent of the ans is the negative of the exponent of the given number
 
@@ -208,13 +208,23 @@ num num::rec()
         r++;
     if (a.digits[r] == 0 || a.digits[0] > base/4) // handle division by zero and infinity
         return guess;                              
-    guess.digits[2 * M - 1 - r] = base / a.digits[r]; // this is a decent guess { huge room for improvement }
-    num two(2);                                     // use this number quite often so better to store it than to generate it everytime
-    // the approximation converges quadratically so we only need to do at most 2*log2(M) iterations
-    while (guess != guess1) // there is a potential chance of an infinite loop
+    guess.digits[2 * M - 1 - r] = base / a.digits[r]; 
+    num two(2); // use this number quite often so better to store it than to generate it everytime
+    // the approximation converges quadratically so we only need to do at most log2(8M) iterations
+    
+    /*
+    the logic is, say we know an approximation of 1/x call it y, then we can find a better
+    approximation y2 = y+d ( d is the small error ).
+    we have 1/(y+d) = x
+    -> 1/(1+(d/y)) = xy 
+    -> 1 - d/y = xy                         using the tailor exp of (1+d/y)^-1 and d/y <<< 1
+    -> d = y - y*yx
+    now y2 = y + d = 2y - y*xy
+    */
+    int logM8 = log2(8*M) + 2;
+    for (int k = 0 ; k < logM8; k++)
     {
-        guess1 = guess;
-        guess = (two - a * guess1) * guess1;
+        guess =  guess * (two - a * guess) ;
     }
     if((*this).signum())
         return guess;
