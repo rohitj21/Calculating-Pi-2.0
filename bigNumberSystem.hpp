@@ -1,6 +1,6 @@
 #define ll long long int
 #define mybase 100000000
-#define M 1000
+#define M 125
 #include <iostream>
 #include <math.h>
 class num
