@@ -1,4 +1,5 @@
  #include "bigNumberSystem.hpp"
+ #pragma comment(linker, "/STACK:200000000")
 int main()
 {
     clock_t tStart = clock(); /* to calculate time */
@@ -20,7 +21,7 @@ int main()
 
     num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
 
-    pi.print();
+    //pi.print();
 
     //num pi2 = arctanOfReciprocal(239) * 732 + arctanOfReciprocal(1023) * 128  - arctanOfReciprocal(5832) * 272 + arctanOfReciprocal(110443) * 48 - arctanOfReciprocal(4841182) * 48 - arctanOfReciprocal(6826318) * 400;
     //(pi2 * 4).print();

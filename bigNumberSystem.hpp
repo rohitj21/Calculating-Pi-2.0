@@ -2,7 +2,7 @@
 #define mybase 10000000000
 #define baselength 10
 /* number of digits = 8M */
-#define M 1000 /* M should be less than 8120 to avoid stackoverflow*/
+#define M 2000 /* M should be less than 8120 to avoid stackoverflow*/
 #include <iostream>
 #include <math.h>
 class num
@@ -713,8 +713,8 @@ num arctanOfReciprocal(ll x)
     ll xx = x * x;
       num ans;
       num zero;
-      num term(1);
-      term = term.int_div(x);
+      num term(int_rec(x));
+
     for (int i = 1; term!=zero; i += 2 )
     {
         if (i & 2)
