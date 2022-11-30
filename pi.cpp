@@ -18,10 +18,14 @@ int main()
     */
 
 
-    num pi = arctan(int_rec(5)) * num(16) - arctan(int_rec(239)) * num(4);
-    
-    //pi.print();
+    num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
 
+    pi.print();
+
+    //num pi2 = arctanOfReciprocal(239) * 732 + arctanOfReciprocal(1023) * 128  - arctanOfReciprocal(5832) * 272 + arctanOfReciprocal(110443) * 48 - arctanOfReciprocal(4841182) * 48 - arctanOfReciprocal(6826318) * 400;
+    //(pi2 * 4).print();
+
+    std::cout<<"Digits Calculated : "<< baselength*M << std::endl;
     printf("Time taken: %.6fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
     return 0;
 

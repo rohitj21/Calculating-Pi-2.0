@@ -1,6 +1,8 @@
 #define ll long long int
-#define mybase 100000000
-#define M 125
+#define mybase 10000000000
+#define baselength 10
+/* number of digits = 8M */
+#define M 1000 /* M should be less than 8120 to avoid stackoverflow*/
 #include <iostream>
 #include <math.h>
 class num
@@ -24,32 +26,41 @@ public:
     num(ll integer);       // another one to make numbes from int
 
     // print statements too!
-    void print()const;
+    void print() const;
 
     // usual operators and methods
     bool signum() const; // returns 1 if the number is positive, 0 if neg
-    num abs()const;     // returns the absolute value of the number
-    void negate(); // negates the number object
+    num abs() const;     // returns the absolute value of the number
+    void negate();       // negates the number object
 
     void operator=(const num &b);
 
-    bool operator==(const num &b)const;
-    bool operator!=(const num &b)const;
+    bool operator==(const num &b) const;
+    bool operator!=(const num &b) const;
 
-    bool operator>(const num &b)const;
-    bool operator>=(const num &b)const;
-    bool operator<(const num &b)const;
-    bool operator<=(const num &b)const;
+    bool operator>(const num &b) const;
+    bool operator>=(const num &b) const;
+    bool operator<(const num &b) const;
+    bool operator<=(const num &b) const;
 
-    num operator+(const num &b)const;
-    num operator-(const num &b)const;
-    num operator-()const;
-    num operator*(const num &b)const;
+    num operator+(const num &b) const;
+    num operator-(const num &b) const;
+    num operator-() const;
+    num operator*(const num &b) const;
+    num operator*(ll b) const;
     num rec() const;
     num operator/(const num &b) const;
+    num int_div(ll b) const;
 };
-num rec(int i);
-bool signum(const num &b) ;
+num rec(ll i);
+bool signum(const num &b);
+ll charToNum(const char str[/*length <= 8*/], int length);
+ll charToNum2(const char str[/*length <= 8*/], int length);
+void print_helper(ll number);
+num int_rec(ll x);
+num sqrt(const num &x);
+num arctan(const num &x);
+num arctanOfReciprocal(ll x);
 
 /* now we define class methods*/
 
@@ -83,11 +94,11 @@ num ::num(ll integer)
     if (sign)
         (*this).negate(); // if number was negative then negate it
 }
-ll charToNum(const char str[/*length <= 8*/], int length)
+ll charToNum(const char str[/*length <= baselength*/], int length)
 {
     int ans = 0;
     int exponent = 1;
-    // converts an 8 char array to a single long long integer.
+    // converts an baselength char array to a single long long integer.
     for (int i = length - 1; i >= 0; i--)
     {
         ans += (str[i] - '0') * exponent;
@@ -95,11 +106,11 @@ ll charToNum(const char str[/*length <= 8*/], int length)
     }
     return (ll)ans;
 }
-ll charToNum2(const char str[/*length <= 8*/], int length)
+ll charToNum2(const char str[/*length <= baselength*/], int length)
 {
     int ans = 0;
     int exponent = 1;
-    // converts an 8 char array to a single long long integer.
+    // converts an baselength char array to a single long long integer.
     int i = length - 1;
     for (; i >= 0; i--)
     {
@@ -197,13 +208,13 @@ num ::num(const char number[])
 void print_helper(ll number)
 {
     // this function prints the digits properly . say the digit is 123 then we print 00000123
-    int arr[8];
-    for (int i = 7; i >= 0; i--)
+    int arr[baselength];
+    for (int i = baselength - 1; i >= 0; i--)
     {
         arr[i] = number % 10;
         number /= 10;
     }
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < baselength; i++)
         std::cout << arr[i];
 }
 void num ::print() const
@@ -259,7 +270,7 @@ void num::operator=(const num &b)
         digits[i + M] = b.digits[i + M];
     }
 }
-bool num::operator==(const num &b)const
+bool num::operator==(const num &b) const
 {
     // while calculating pi we will often compare two very close number
     // so it makes more sense to start comparing from the end digits
@@ -272,7 +283,7 @@ bool num::operator==(const num &b)const
     }
     return true;
 }
-bool num::operator!=(const num &b)const
+bool num::operator!=(const num &b) const
 {
     for (int i = M - 1; i >= 0; i--)
     {
@@ -283,10 +294,10 @@ bool num::operator!=(const num &b)const
     }
     return false;
 }
-bool num::operator>(const num &b)const
+bool num::operator>(const num &b) const
 {
     // same logic follows is both of them have same sign
-    if ((*this).signum() == b.signum())
+    if (this->signum() == b.signum())
     {
         for (int i = 0; i < 2 * M; i++)
         {
@@ -298,12 +309,12 @@ bool num::operator>(const num &b)const
         return false;
     }
 
-    return (*this).signum();
+    return this->signum();
 }
 bool num::operator>=(const num &b) const
 {
     // same logic follows is both of them have same sign
-    if ((*this).signum() == b.signum())
+    if (this->signum() == b.signum())
     {
         for (int i = 0; i < 2 * M; i++)
         {
@@ -315,14 +326,14 @@ bool num::operator>=(const num &b) const
         return true;
     }
 
-    return (*this).signum();
+    return this->signum();
 }
-bool num::operator<=(const num &b)const
+bool num::operator<=(const num &b) const
 {
     // could be implemented simply like this but i guess the it will take more time for copying and accessing data
     // return !((*this) > b);
 
-    if ((*this).signum() == b.signum()) 
+    if (this->signum() == b.signum())
     {
         for (int i = 0; i < 2 * M; i++)
         {
@@ -338,7 +349,7 @@ bool num::operator<=(const num &b)const
 }
 bool num::operator<(const num &b) const
 {
-    if ((*this).signum() == b.signum())
+    if (this->signum() == b.signum())
     {
         for (int i = 0; i < 2 * M; i++)
         {
@@ -403,8 +414,7 @@ num num::operator*(const num &c) const
     num b(c);
     num a(*this);
     bool sign = a.signum() == b.signum(); // variable to store the sign of the final ans
-    
-    
+
     if (!a.signum())
         a.negate();
     if (!b.signum())
@@ -446,6 +456,54 @@ num num::operator*(const num &c) const
     prod.negate();
     return prod;
 }
+// multiplication by an integer should ideally take linear time
+num num::operator*(ll x) const
+{
+    num ans;
+    if (this->signum())
+    {
+        if (x > 0)
+        {
+            ll carry = 0;
+            for (int i = 2 * M - 1; i >= 0; i--)
+            {
+                ans.digits[i] = (digits[i] * x + carry) % mybase;
+                carry = (digits[i] * x + carry) / mybase;
+            }
+            return ans;
+        }
+        else if (x < 0)
+        {
+            return *this * (-x);
+        }
+    }
+    else
+    {
+        // if number is negative
+
+        /* we have to handle an edge case
+        say M = 2
+        then the number -inf = 50000000 00000000 is produces a problem
+        i am calling it -inf because it is the smallest number in our representation
+        the problem is that it is its own negative so if we just write
+
+            return -((-(*this))*(x));
+            it will go into an infinite recursion
+
+        */
+        num infinity;
+        infinity.digits[0] = mybase / 2;
+
+        if (*this != infinity)
+        {
+            num newNumber(*this);
+            newNumber.negate();
+            return -(newNumber * x);
+        }
+    }
+    /*return num(0) when x == 0 or num == infinity*/
+    return num();
+}
 // for division we first need reciprocal
 num num::rec() const
 {
@@ -480,7 +538,7 @@ num num::rec() const
     {
         guess = guess * (two - a * guess);
     }
-    if ((*this).signum())
+    if (this->signum())
         return guess;
     guess.negate();
     return guess;
@@ -494,7 +552,7 @@ num num::operator/(const num &b) const
 
 // it would be useful if we could implement the reciprocal in a better way
 // for calculating pi we only need the reciprocals of the integer
-num int_rec(int x)
+num int_rec(ll x)
 {
     if (x < 0)
     {
@@ -515,6 +573,60 @@ num int_rec(int x)
         }
         return ans;
     }
+    return num();
+}
+
+// moreover a function which divides a given number by an integer in linear time would make the calculations even faster
+num num::int_div(ll x) const
+{
+    /*if the number is positive */
+    if (this->signum())
+    {
+        /* x is negative*/
+        if (x < 0)
+        {
+            num negnumber = -(*this);
+            return -(negnumber.int_div(-x));
+        }
+        else if (x == 1)
+        {
+            return *this;
+        }
+        else if (x > 1)
+        {
+            num ans;
+            ll remainder = 0;
+            for (int i = 0; i < 2 * M; i++)
+            {
+                ans.digits[i] = (remainder * mybase + digits[i]) / x;
+                remainder = (remainder * mybase + digits[i]) % x;
+            }
+            return ans;
+        }
+    }
+    else
+    {
+        /* we have to handle an edge case
+        say M = 2
+        then the number -inf = 50000000 00000000 is produces a problem
+        i am calling it -inf because it is the smallest number in our representation
+        the problem is that it is its own negative so if we just write
+
+            return -((-(*this)).int_div(x));
+            it will go into an infinite recursion
+
+        */
+        num infinity;
+        infinity.digits[0] = mybase / 2;
+
+        if (*this != infinity)
+        {
+            num newNumber(*this);
+            newNumber.negate();
+            return -(newNumber.int_div(x));
+        }
+    }
+    /*return 0 if x is zero or the given num is infinity*/
     return num();
 }
 
@@ -539,10 +651,9 @@ num sqrt(const num &x)
         -> y2 = 0.5 (y + x/y)
 
         */
-    num guess, half = num("0.5");
-    int k = 0;
-    if (x <= num("0")) /*edge case*/
-        return num("0");
+    num guess;
+    if (x <= num()) /*edge case*/
+        return num();
 
     /*
         now how to find a good approximation to begin with?
@@ -571,7 +682,7 @@ num sqrt(const num &x)
     int logM8 = log2(8 * M) + 2;
     for (i = 0; i < logM8; i++)
     {
-        guess = (guess + x * (guess.rec())) * half;
+        guess = (guess + (guess.rec())*x)/2;
     }
 
     return guess;
@@ -583,13 +694,34 @@ num arctan(const num &x)
     num ans;
     num zero;
     num term(x);
+
     for (int i = 1; term != zero; i += 2)
     {
         if (i & 2)
-            ans = ans - (int_rec(i)) * term;
+            ans = ans - term.int_div(i);
         else
-            ans = ans + (int_rec(i)) * term;
-        term = xx * term;
+            ans = ans + term.int_div(i);
+        term = xx * term; /* this multiplication is O(n^2) */
+    }
+    return ans;
+}
+
+/* exploit the fact that we only need the arctan of the reciprocals of integers*/
+num arctanOfReciprocal(ll x)
+{
+
+    ll xx = x * x;
+      num ans;
+      num zero;
+      num term(1);
+      term = term.int_div(x);
+    for (int i = 1; term!=zero; i += 2 )
+    {
+        if (i & 2)
+            ans = ans - term.int_div(i);
+        else
+            ans = ans + term.int_div(i);
+        term = term.int_div(xx); /* this  is O(n) */
     }
     return ans;
 }
