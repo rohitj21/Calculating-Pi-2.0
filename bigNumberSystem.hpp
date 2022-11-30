@@ -1,23 +1,26 @@
+#define N 10
 #define ll long long int
-#define mybase 10000000000
-#define baselength 10
-/* number of digits = 8M */
-#define M 2000 /* M should be less than 8120 to avoid stackoverflow*/
-#include <iostream>
-#include <math.h>
+#define M 12500
+#define baselength 8
+#define mybase 100000000
+/* be careful , use mybase > 10e8 only if you never use multipliction/division by num object
+    moreover if you use multipy/division by num then N~M for proper results
+*/
+#include<iostream>
+#include<math.h>
 class num
 {
     /*
-    M is the number of blocks of digits after and before the decimal point
+    m and M is the number of blocks of digits after and before the decimal point
     each block contains a number between 0 and 9999,9999 (inclusive) i.e.  8 digits
     negetive numbers are stored in 1 0000 0000 's compliment form
-    for example if M = 2, the number 1234567890.0987654321 will be stored as
+    for example if m=M = 2, the number 1234567890.0987654321 will be stored as
         (0000 0012) (3456 7890) (0987 6543) (2100 0000)
     and -1234567890.0987654321 will be stored as
         (9999 9987) (6543 2109) (9012 3456) (7900 0000)
     */
 public:
-    ll digits[2 * M];
+    ll digits[N + M];
 
     //  useful constructors
 
@@ -66,7 +69,7 @@ num arctanOfReciprocal(ll x);
 
 num ::num()
 {
-    for (int i = 0; i < 2 * M; i++)
+    for (int i = 0; i < N +  M; i++)
     {
         digits[i] = 0; // set all values to zero;
     }
@@ -84,11 +87,13 @@ num ::num(ll integer)
         integer = -integer;
 
     // digits after the decimal = zero and before decimal are set one by one
-    for (int i = 0; i < M; i++)
+    for (int i = 0; i < N; i++)
     {
-        digits[i + M] = 0;
-        digits[M - 1 - i] = integer % mybase;
+        digits[N - 1 - i] = integer % mybase;
         integer /= mybase;
+    }
+    for(int i = N; i<N+M; i++){
+        digits[i] = 0;
     }
 
     if (sign)
@@ -96,20 +101,20 @@ num ::num(ll integer)
 }
 ll charToNum(const char str[/*length <= baselength*/], int length)
 {
-    int ans = 0;
-    int exponent = 1;
+    ll ans = 0;
+    ll exponent = 1;
     // converts an baselength char array to a single long long integer.
     for (int i = length - 1; i >= 0; i--)
     {
         ans += (str[i] - '0') * exponent;
         exponent *= 10;
     }
-    return (ll)ans;
+    return ans;
 }
 ll charToNum2(const char str[/*length <= baselength*/], int length)
 {
-    int ans = 0;
-    int exponent = 1;
+    ll ans = 0;
+    ll exponent = 1;
     // converts an baselength char array to a single long long integer.
     int i = length - 1;
     for (; i >= 0; i--)
@@ -122,14 +127,14 @@ ll charToNum2(const char str[/*length <= baselength*/], int length)
         ans *= 10;
         exponent *= 10;
     }
-    return (ll)ans;
+    return ans;
 }
 
 void num ::negate()
 {
     //  convert the input to  the mybase compliment of itself
 
-    int i = 2 * M - 1;
+    int i = N+M - 1;
     while (!digits[i] && i >= 0) // skip last zeroes
         i--;
     digits[i] = mybase - digits[i];
@@ -162,11 +167,11 @@ num ::num(const char number[])
         digitsBeforeDecimal++;
 
     // first deal with the digits before decimal
-    int i = M - 1, j = digitsBeforeDecimal;
-    while (i >= 0 && j > 8) // break string into parts of length 8 and convert one by one
+    int i = N - 1, j = digitsBeforeDecimal;
+    while (i >= 0 && j > baselength) // break string into parts of length 8 and convert one by one
     {
-        digits[i] = charToNum(number + j - 8, 8);
-        j -= 8;
+        digits[i] = charToNum(number + j - baselength, baselength);
+        j -= baselength;
         i--;
     }
     digits[i] = charToNum(number, j);
@@ -184,19 +189,19 @@ num ::num(const char number[])
     if (totalLength != digitsBeforeDecimal)
         digitsAfterDecimal--; // for "1.2" totalLength = 3, beforeDecimal = 1
 
-    i = M;
+    i = N;
     j = digitsBeforeDecimal;
-    while (i < 2 * M && digitsAfterDecimal > 8)
+    while (i < N+M && digitsAfterDecimal > baselength)
     {
-        digits[i] = charToNum(number + j + 1, 8);
+        digits[i] = charToNum(number + j + 1, baselength);
         i++;
-        digitsAfterDecimal -= 8;
-        j += 8;
+        digitsAfterDecimal -= baselength;
+        j += baselength;
     }
     digits[i] = charToNum2(number + j + 1, digitsAfterDecimal);
     i++;
     // set the remaining digits to 0
-    while (i < 2 * M)
+    while (i < N+ M)
     {
         digits[i] = 0;
         i++;
@@ -229,21 +234,21 @@ void num ::print() const
 
     // skip leading zeros
     int i = 0;
-    while (!toPrint.digits[i] && i < M - 1)
+    while (!toPrint.digits[i] && i < N - 1)
         i++;
     // print first non zero digits
     std ::cout << toPrint.digits[i];
     i++;
     // print rest of the digits before decimal
-    while (i < M)
+    while (i < N)
     {
         std::cout << " ";
         print_helper(toPrint.digits[i]);
         i++;
     }
     // avoid trailing zeroes
-    int t = 2 * M;
-    while (!toPrint.digits[t - 1] && t >= M)
+    int t = N+M;
+    while (!toPrint.digits[t - 1] && t >= N)
         t--;
 
     // if t == M there is no need to print the decimal point
@@ -264,19 +269,18 @@ void num ::print() const
 
 void num::operator=(const num &b)
 {
-    for (int i = 0; i < M; i++)
+    for (int i = 0; i < M+N; i++)
     {
         digits[i] = b.digits[i];
-        digits[i + M] = b.digits[i + M];
     }
 }
 bool num::operator==(const num &b) const
 {
     // while calculating pi we will often compare two very close number
     // so it makes more sense to start comparing from the end digits
-    for (int i = M - 1; i >= 0; i--)
+    for (int i = N + M - 1; i >= 0; i--)
     {
-        if (digits[i] != b.digits[i] || digits[i + M] != b.digits[i + M])
+        if (digits[i] != b.digits[i])
         {
             return false;
         }
@@ -285,9 +289,9 @@ bool num::operator==(const num &b) const
 }
 bool num::operator!=(const num &b) const
 {
-    for (int i = M - 1; i >= 0; i--)
+    for (int i = N+ M - 1; i >= 0; i--)
     {
-        if (digits[i] != b.digits[i] || digits[i + M] != b.digits[i + M])
+        if (digits[i] != b.digits[i])
         {
             return true;
         }
@@ -299,7 +303,7 @@ bool num::operator>(const num &b) const
     // same logic follows is both of them have same sign
     if (this->signum() == b.signum())
     {
-        for (int i = 0; i < 2 * M; i++)
+        for (int i = 0; i < N+M; i++)
         {
             if (digits[i] != b.digits[i])
             {
@@ -316,7 +320,7 @@ bool num::operator>=(const num &b) const
     // same logic follows is both of them have same sign
     if (this->signum() == b.signum())
     {
-        for (int i = 0; i < 2 * M; i++)
+        for (int i = 0; i <  N + M; i++)
         {
             if (digits[i] != b.digits[i])
             {
@@ -335,7 +339,7 @@ bool num::operator<=(const num &b) const
 
     if (this->signum() == b.signum())
     {
-        for (int i = 0; i < 2 * M; i++)
+        for (int i = 0; i < N + M; i++)
         {
             if (digits[i] != b.digits[i])
             {
@@ -351,7 +355,7 @@ bool num::operator<(const num &b) const
 {
     if (this->signum() == b.signum())
     {
-        for (int i = 0; i < 2 * M; i++)
+        for (int i = 0; i < N +M; i++)
         {
             if (digits[i] != b.digits[i])
             {
@@ -369,7 +373,7 @@ bool num::operator<(const num &b) const
 num num::operator-() const
 {
     num ans;
-    int i = 2 * M - 1;
+    int i = N+ M - 1;
     while (!digits[i] && i >= 0)
         i--;
     ans.digits[i] = mybase - digits[i];
@@ -386,7 +390,7 @@ num num::operator+(const num &b) const
 {
     num ans;
     ll carry = 0;
-    for (int i = 2 * M - 1; i >= 0; i--)
+    for (int i = N+ M - 1; i >= 0; i--)
     {
         ans.digits[i] = (carry + b.digits[i] + digits[i]) % mybase;
         carry = (carry + b.digits[i] + digits[i]) >= mybase;
@@ -397,7 +401,7 @@ num num::operator-(const num &b) const
 {
     num ans;
     ll carry = 0;
-    for (int i = 2 * M - 1; i >= 0; i--)
+    for (int i = N+ M - 1; i >= 0; i--)
     {
         ans.digits[i] = (digits[i] - b.digits[i] - carry + mybase) % mybase;
         carry = digits[i] < (b.digits[i] + carry);
@@ -421,35 +425,35 @@ num num::operator*(const num &c) const
         b.negate();
 
     // creating an empty array to hold the temporary result
-    ll ans[4 * M];
-    for (int i = 0; i < M; i++)
+    ll ans[2 *(N+M)];
+    for (int i = 0; i < 2*(N+M); i++)
     {
-        ans[i] = ans[i + M] = ans[i + 2 * M] = ans[i + 3 * M] = 0;
+        ans[i] = 0;
     }
 
-    for (int i = 0; i < 2 * M; i++)
+    for (int i = 0; i < N+M; i++)
     {
         // no need to waste time multipying with zeros
         if (!b.digits[i])
             continue;
 
-        for (int j = 0; j < 2 * M; j++)
+        for (int j = 0; j < N+M; j++)
         {
             ans[i + j + 1] += a.digits[j] * b.digits[i];
         }
     }
 
     // now  modify the digits of ans appropriately
-    for (int i = 4 * M - 1; i > 0; i--)
+    for (int i = 2*(N+M)-1; i > 0; i--)
     {
         ans[i - 1] += ans[i] / mybase;
         ans[i] = ans[i] % mybase;
     }
     // now set the answer variable
     num prod;
-    for (int i = 0; i < 2 * M; i++)
+    for (int i = 0; i < N+M; i++)
     {
-        prod.digits[i] = ans[M + i];
+        prod.digits[i] = ans[N + i];
     }
     if (sign)
         return prod;
@@ -465,7 +469,7 @@ num num::operator*(ll x) const
         if (x > 0)
         {
             ll carry = 0;
-            for (int i = 2 * M - 1; i >= 0; i--)
+            for (int i = N+M - 1; i >= 0; i--)
             {
                 ans.digits[i] = (digits[i] * x + carry) % mybase;
                 carry = (digits[i] * x + carry) / mybase;
@@ -516,11 +520,11 @@ num num::rec() const
     // the exponent of the ans is the negative of the exponent of the given number
 
     int r = 0;
-    while (r < 2 * M && !a.digits[r])
+    while (r < N+M && !a.digits[r])
         r++;
     if (a.digits[r] == 0 || a.digits[0] > mybase / 4) // handle division by zero and infinity
         return guess;
-    guess.digits[2 * M - 1 - r] = mybase / a.digits[r];
+    guess.digits[N+ M - 1 - r] = mybase / a.digits[r];
     num two(2); // use this number quite often so better to store it than to generate it everytime
     // the approximation converges quadratically so we only need to do at most log2(8M) iterations
 
@@ -533,7 +537,7 @@ num num::rec() const
     -> d = y - y*yx
     now y2 = y + d = 2y - y*xy
     */
-    int logM8 = log2(8 * M) + 2;
+    int logM8 = log2(baselength * (M+N)) + 2;
     for (int k = 0; k < logM8; k++)
     {
         guess = guess * (two - a * guess);
@@ -566,7 +570,7 @@ num int_rec(ll x)
     {
         num ans;
         ll remainder = 1;
-        for (int i = M; i < 2 * M; i++)
+        for (int i = N; i < N+M; i++)
         {
             ans.digits[i] = (remainder * mybase) / x;
             remainder = (remainder * mybase) % x;
@@ -596,7 +600,7 @@ num num::int_div(ll x) const
         {
             num ans;
             ll remainder = 0;
-            for (int i = 0; i < 2 * M; i++)
+            for (int i = 0; i < N+M; i++)
             {
                 ans.digits[i] = (remainder * mybase + digits[i]) / x;
                 remainder = (remainder * mybase + digits[i]) % x;
@@ -664,22 +668,22 @@ num sqrt(const num &x)
     */
     int i = 0;
     /* find the first non zero digit's index i*/
-    while (i < 2 * M && !x.digits[i])
+    while (i < N+M && !x.digits[i])
     {
         i++;
     }
-    if ((i - M + 1) % 2 == 0)
+    if ((i - N + 1) % 2 == 0)
         /* case when the exponent is even */
-        guess.digits[(i + M - 1) / 2] = sqrt(x.digits[i]);
+        guess.digits[(i + N - 1) / 2] = sqrt(x.digits[i]);
     else
         /* if the exponent is odd */
-        guess.digits[(i + M + 1) / 2] = sqrt(x.digits[i] * mybase + x.digits[i + 1]);
+        guess.digits[(i + N + 1) / 2] = sqrt(x.digits[i] * mybase + x.digits[i + 1]);
 
     /*
         since we are starting with a very good approximation and the seq of guesses converges
         quadratically we only ever need to do log2(8M) iterations
     */
-    int logM8 = log2(8 * M) + 2;
+    int logM8 = log2(baselength * (N+M)) + 2;
     for (i = 0; i < logM8; i++)
     {
         guess = (guess + (guess.rec())*x)/2;

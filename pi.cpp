@@ -1,5 +1,4 @@
- #include "bigNumberSystem.hpp"
- #pragma comment(linker, "/STACK:200000000")
+ #include"bigNumberSystem.hpp"
 int main()
 {
     clock_t tStart = clock(); /* to calculate time */
@@ -15,7 +14,6 @@ int main()
     arctan(x) = x - x^3 /3 + x^5 /5 ....
 
     pi = 16*arctan(1/5) - 4*arctan(1/239)
-    
     */
 
 
@@ -23,8 +21,6 @@ int main()
 
     //pi.print();
 
-    //num pi2 = arctanOfReciprocal(239) * 732 + arctanOfReciprocal(1023) * 128  - arctanOfReciprocal(5832) * 272 + arctanOfReciprocal(110443) * 48 - arctanOfReciprocal(4841182) * 48 - arctanOfReciprocal(6826318) * 400;
-    //(pi2 * 4).print();
 
     std::cout<<"Digits Calculated : "<< baselength*M << std::endl;
     printf("Time taken: %.6fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
