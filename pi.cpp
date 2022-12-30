@@ -1,8 +1,9 @@
  #include"bigNumberSystem.hpp"
+ 
 int main()
 {
     clock_t tStart = clock(); /* to calculate time */
-
+    
     /*
     to calculate pi we use formulas involving tan^-1 (x)
     a simple  example is :  arctan(1) = pi/4
@@ -17,13 +18,13 @@ int main()
     */
 
 
-    num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
+    //num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
 
     //pi.print();
 
-
     std::cout<<"Digits Calculated : "<< baselength*M << std::endl;
-    printf("Time taken: %.6fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
+
+    printf("Time taken: %.3fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
     return 0;
 
 }
