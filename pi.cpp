@@ -16,9 +16,9 @@ int main()
 
     pi = 16*arctan(1/5) - 4*arctan(1/239)
     */
-
-
-    //num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
+    
+   // refer https://en.wikipedia.org/wiki/Machin-like_formula for more info 
+    num pi = arctanOfReciprocal(5) * 16 - arctanOfReciprocal(239) * 4;
 
     //pi.print();
 
