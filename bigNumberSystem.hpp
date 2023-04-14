@@ -22,6 +22,7 @@ class num
     and -1234567890.0987654321 will be stored as
         (9999 9987) (6543 2109) (9012 3456) (7900 0000)
     */
+    
 public:
     std ::vector<ll> digits;
     //  useful constructors
